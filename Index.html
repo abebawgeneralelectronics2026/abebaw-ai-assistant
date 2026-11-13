@@ -1,0 +1,155 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#101522">
+<title>ABEB AW AI ASSISTANT</title>
+<style>
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  padding: 20px;
+  background: #101522;
+  color: white;
+  font-family: Arial, sans-serif;
+}
+main {
+  max-width: 650px;
+  margin: 25px auto;
+  background: #192235;
+  padding: 22px;
+  border-radius: 18px;
+  border: 1px solid #d4af37;
+}
+h1 {
+  color: #d4af37;
+  text-align: center;
+  font-size: 25px;
+}
+.subtitle {
+  text-align: center;
+  color: #b8c4d8;
+}
+#status {
+  text-align: center;
+  color: #d4af37;
+  font-size: 13px;
+  margin: 18px 0;
+}
+#chat {
+  height: 330px;
+  overflow-y: auto;
+  background: #101522;
+  border-radius: 12px;
+  padding: 12px;
+}
+.message {
+  padding: 12px;
+  margin: 9px 0;
+  border-radius: 10px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.user {
+  background: #294568;
+  margin-left: 25px;
+}
+.ai {
+  background: #293449;
+  margin-right: 25px;
+}
+textarea {
+  width: 100%;
+  margin-top: 15px;
+  padding: 13px;
+  border-radius: 10px;
+  background: #101522;
+  color: white;
+  border: 1px solid #53647d;
+  font-size: 16px;
+  resize: vertical;
+}
+button {
+  background: #d4af37;
+  color: #101522;
+  border: none;
+  padding: 14px;
+  border-radius: 10px;
+  font-weight: bold;
+  cursor: pointer;
+}
+#send {
+  width: 100%;
+  margin-top: 10px;
+}
+button:disabled { opacity: .5; }
+footer {
+  text-align: center;
+  color: #91a0b8;
+  font-size: 12px;
+  margin-top: 20px;
+}
+</style>
+</head>
+<body>
+<main>
+  <h1>ABEB AW AI</h1>
+  <p class="subtitle">Your assistant. Your choices. Your control.</p>
+
+  <div id="status">Ready to connect</div>
+
+  <div id="chat" aria-live="polite">
+    <div class="message ai">
+      Hello! I am ABEB AW AI, created by Abebaw.
+      How can I help you today?
+    </div>
+  </div>
+
+  <textarea id="message" rows="3"
+    placeholder="Write your message here..."></textarea>
+
+  <button id="send" onclick="sendMessage()">SEND MESSAGE</button>
+
+  <footer>ABEB AW AI · Prototype 1.0 · Founder: Abebaw</footer>
+</main>
+
+<script>
+const chat = document.getElementById("chat");
+const message = document.getElementById("message");
+const statusText = document.getElementById("status");
+const sendButton = document.getElementById("send");
+
+// API connection will be added after the interface is tested.
+function addMessage(text, type) {
+  const item = document.createElement("div");
+  item.className = "message " + type;
+  item.textContent = text;
+  chat.appendChild(item);
+  chat.scrollTop = chat.scrollHeight;
+}
+
+async function sendMessage() {
+  const text = message.value.trim();
+  if (!text) return;
+
+  addMessage(text, "user");
+  message.value = "";
+
+  statusText.textContent = "Interface working — AI connection not yet configured.";
+  addMessage(
+    "Thank you. I received your message. My secure AI connection is the next development step.",
+    "ai"
+  );
+}
+
+message.addEventListener("keydown", function(event) {
+  if (event.key === "Enter" && !event.shiftKey) {
+    event.preventDefault();
+    sendMessage();
+  }
+});
+</script>
+</body>
+</html>
