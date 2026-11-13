@@ -130,7 +130,55 @@ function addMessage(text, type) {
   chat.scrollTop = chat.scrollHeight;
 }
 
+
 async function sendMessage() {
+  const userText = message.value.trim();
+  if (!userText) return;
+
+  addMessage(userText, "user");
+  message.value = "";
+
+  statusText.textContent = "Connecting to ABEB AW AI...";
+
+  try {
+    const response = await fetch(
+      "https://abeb-aw-ai-brain.jacksonabebe98.workers.dev",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          message: userText
+        })
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || "AI connection failed");
+    }
+
+    const reply = data.reply || data.response;
+
+    if (!reply) {
+      throw new Error("No AI response received.");
+    }
+
+    addMessage(reply, "ai");
+    statusText.textContent = "ABEB AW AI is connected.";
+
+  } catch (error) {
+    console.error(error);
+    addMessage(
+      "I could not connect to my AI brain. Please try again.",
+      "ai"
+    );
+    statusText.textContent = "Connection problem. Please try again.";
+  }
+}
+
   const text = message.value.trim();
   if (!text) return;
 
