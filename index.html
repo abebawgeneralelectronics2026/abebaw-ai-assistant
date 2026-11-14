@@ -122,10 +122,42 @@ const statusText = document.getElementById("status");
 const sendButton = document.getElementById("send");
 
 // API connection will be added after the interface is tested.
+
+
 function addMessage(text, type) {
   const item = document.createElement("div");
   item.className = "message " + type;
-  item.textContent = text;
+
+  const lines = String(text).split("\n");
+
+  lines.forEach(line => {
+    const paragraph = document.createElement("p");
+    paragraph.style.margin = "5px 0";
+
+    const safeLine = document.createTextNode(line);
+    paragraph.appendChild(safeLine);
+
+    // Format bold Markdown
+    const boldRegex = /\*\*(.*?)\*\*/g;
+    const formatted = line.replace(boldRegex, "§BOLD§$1§END§");
+
+    paragraph.textContent = "";
+
+    const parts = formatted.split(/(§BOLD§.*?§END§)/g);
+
+    parts.forEach(part => {
+      if (part.startsWith("§BOLD§") && part.endsWith("§END§")) {
+        const strong = document.createElement("strong");
+        strong.textContent = part.slice(6, -5);
+        paragraph.appendChild(strong);
+      } else {
+        paragraph.appendChild(document.createTextNode(part));
+      }
+    });
+
+    item.appendChild(paragraph);
+  });
+
   chat.appendChild(item);
   chat.scrollTop = chat.scrollHeight;
 }
