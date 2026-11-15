@@ -305,14 +305,78 @@ function addCodeBlock() {
 
 
 
+
+function stopSpeaking() {
+  if ("speechSynthesis" in window) {
+    speechSynthesis.cancel();
+  }
+}
+
+function speakAnswer(text) {
+  if (!("speechSynthesis" in window)) {
+    statusText.textContent = "Voice playback is not supported.";
+    return;
+  }
+
+  stopSpeaking();
+
+  const utterance = new SpeechSynthesisUtterance(text);
+  const voices = speechSynthesis.getVoices();
+
+  // Detect the language from the AI's response.
+  function detectLanguage(text) {
+    if (/[\u1200-\u137F]/.test(text)) return "am-ET";
+    if (/[\u0600-\u06FF]/.test(text)) return "ar";
+    if (/[\u0400-\u04FF]/.test(text)) return "ru";
+    if (/[\u4E00-\u9FFF]/.test(text)) return "zh";
+    if (/[\u3040-\u30FF]/.test(text)) return "ja";
+    if (/[\uAC00-\uD7AF]/.test(text)) return "ko";
+    if (/\b(hola|gracias|español)\b/i.test(text)) return "es";
+    if (/\b(bonjour|merci|français)\b/i.test(text)) return "fr";
+    if (/\b(hallo|danke|deutsch)\b/i.test(text)) return "de";
+
+    return "en";
+  }
+
+  const language = detectLanguage(text);
+  utterance.lang = language;
+
+  const matchingVoice = voices.find(
+    voice => voice.lang.toLowerCase() === language.toLowerCase()
+  ) || voices.find(
+    voice => voice.lang.toLowerCase().startsWith(language.split("-")[0])
+  );
+
+  if (matchingVoice) {
+    utterance.voice = matchingVoice;
+  }
+
+  utterance.onstart = function() {
+    statusText.textContent = "ABEB AW AI is speaking...";
+  };
+
+  utterance.onend = function() {
+    statusText.textContent = "ABEB AW AI is connected.";
+  };
+
+  utterance.onerror = function(event) {
+    console.error("Voice Error:", event.error);
+    statusText.textContent = "Voice playback unavailable.";
+  };
+
+  speechSynthesis.speak(utterance);
+}
+
 async function sendMessage() {
   const userText = message.value.trim();
   if (!userText) return;
 
+  stopSpeaking();
+
   addMessage(userText, "user");
   message.value = "";
 
-  statusText.textContent = "Connecting to ABEB AW AI...";
+  statusText.textContent = "ABEB AW AI is thinking...";
 
   try {
     const response = await fetch(
@@ -341,25 +405,28 @@ async function sendMessage() {
     }
 
     addMessage(reply, "ai");
-    statusText.textContent = "ABEB AW AI is connected.";
+
+    // Automatically speak every AI answer.
+    speakAnswer(reply);
 
   } catch (error) {
     console.error("AI Error:", error);
+
     addMessage(
       "Connection failed: " + error.message,
       "ai"
     );
+
     statusText.textContent = "Connection problem.";
   }
 }
-
 
 message.addEventListener("keydown", function(event) {
   if (event.key === "Enter" && !event.shiftKey) {
     event.preventDefault();
     sendMessage();
   }
-});
+  });
 </script>
 </body>
 </html>
