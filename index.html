@@ -322,17 +322,13 @@ if (type === "ai") {
   voiceControls.appendChild(stopButton);
   item.appendChild(voiceControls);
 }
-
-  speakerButton.textContent = "🔊 Listen";
-  speakerButton.style.marginTop = "8px";
-  speakerButton.style.padding = "7px 12px";
-
-  speakerButton.addEventListener("click", function() {
-    speakAnswer(String(text));
-  });
-
-  item.appendChild(speakerButton);
+  item.appendChild(voiceControls);
 }
+
+  chat.appendChild(item);
+  chat.scrollTop = chat.scrollHeight;
+}
+
   chat.appendChild(item);
   chat.scrollTop = chat.scrollHeight;
 }
