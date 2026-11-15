@@ -107,11 +107,19 @@ footer {
     </div>
   </div>
 
-  <textarea id="message" rows="3"
-    placeholder="Write your message here..."></textarea>
+ <textarea id="message" rows="3"
+    placeholder="Write or speak your message here..."></textarea>
 
-  <button id="send" onclick="sendMessage()">SEND MESSAGE</button>
+<div style="display:flex; gap:10px; margin-top:10px;">
+  <button id="mic" onclick="toggleMicrophone()"
+    style="flex:1; background:#27ae60; color:white;">
+    🎤 SPEAK
+  </button>
 
+  <button id="send" onclick="sendMessage()" style="flex:2; margin:0;">
+    SEND MESSAGE
+  </button>
+</div>
   <footer>ABEB AW AI · Prototype 1.0 · Founder: Abebaw</footer>
 </main>
 
@@ -122,6 +130,63 @@ const statusText = document.getElementById("status");
 const sendButton = document.getElementById("send");
 
 // API connection will be added after the interface is tested.
+
+const SpeechRecognition =
+  window.SpeechRecognition || window.webkitSpeechRecognition;
+
+let recognition = null;
+let isListening = false;
+
+function toggleMicrophone() {
+  if (!SpeechRecognition) {
+    statusText.textContent =
+      "Voice recognition is not supported. Try Google Chrome.";
+    return;
+  }
+
+  if (isListening) {
+    recognition.stop();
+    return;
+  }
+
+  recognition = new SpeechRecognition();
+
+  recognition.lang = navigator.language || "en-US";
+  recognition.continuous = false;
+  recognition.interimResults = true;
+
+  recognition.onstart = function() {
+    isListening = true;
+    document.getElementById("mic").textContent = "⏹ STOP LISTENING";
+    statusText.textContent = "ABEB AW AI is listening...";
+  };
+
+  recognition.onresult = function(event) {
+    let transcript = "";
+
+    for (let i = 0; i < event.results.length; i++) {
+      transcript += event.results[i][0].transcript;
+    }
+
+    message.value = transcript;
+  };
+
+  recognition.onerror = function(event) {
+    statusText.textContent =
+      "Microphone error: " + event.error;
+  };
+
+  recognition.onend = function() {
+    isListening = false;
+    document.getElementById("mic").textContent = "🎤 SPEAK";
+
+    if (statusText.textContent === "ABEB AW AI is listening...") {
+      statusText.textContent = "Voice captured. Ready to send.";
+    }
+  };
+
+  recognition.start();
+}
 
 
 
