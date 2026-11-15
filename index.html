@@ -125,6 +125,7 @@ const sendButton = document.getElementById("send");
 
 
 
+
 function addMessage(text, type) {
   const item = document.createElement("div");
   item.className = "message " + type;
@@ -135,7 +136,9 @@ function addMessage(text, type) {
     const paragraph = document.createElement("p");
     paragraph.style.margin = "5px 0";
 
-    const regex = /(\*\*.*?\*\*|\*[^*]+\*)/g;
+    // Bold, italic and inline code formatting
+    const regex = /(\*\*.*?\*\*|\*[^*]+\*|`[^`]+`)/g;
+
     let lastIndex = 0;
     let match;
 
@@ -150,10 +153,14 @@ function addMessage(text, type) {
         const strong = document.createElement("strong");
         strong.textContent = token.slice(2, -2);
         paragraph.appendChild(strong);
-      } else {
+      } else if (token.startsWith("*")) {
         const italic = document.createElement("em");
         italic.textContent = token.slice(1, -1);
         paragraph.appendChild(italic);
+      } else {
+        const code = document.createElement("code");
+        code.textContent = token.slice(1, -1);
+        paragraph.appendChild(code);
       }
 
       lastIndex = regex.lastIndex;
@@ -169,6 +176,7 @@ function addMessage(text, type) {
   chat.appendChild(item);
   chat.scrollTop = chat.scrollHeight;
 }
+
 
 
 
