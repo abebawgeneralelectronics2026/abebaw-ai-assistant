@@ -126,25 +126,28 @@ const sendButton = document.getElementById("send");
 
 
 
+
 function addMessage(text, type) {
   const item = document.createElement("div");
   item.className = "message " + type;
 
   const lines = String(text).split("\n");
+  let currentList = null;
+  let inCodeBlock = false;
+  let codeLines = [];
 
-  lines.forEach(line => {
-    const paragraph = document.createElement("p");
-    paragraph.style.margin = "5px 0";
+  function closeList() {
+    currentList = null;
+  }
 
-    // Bold, italic and inline code formatting
-    const regex = /(\*\*.*?\*\*|\*[^*]+\*|`[^`]+`)/g;
-
+  function addInlineText(element, text) {
+    const regex = /(\*\*.*?\*\*|`[^`]+`|\*[^*]+\*)/g;
     let lastIndex = 0;
     let match;
 
-    while ((match = regex.exec(line)) !== null) {
-      paragraph.appendChild(
-        document.createTextNode(line.slice(lastIndex, match.index))
+    while ((match = regex.exec(text)) !== null) {
+      element.appendChild(
+        document.createTextNode(text.slice(lastIndex, match.index))
       );
 
       const token = match[0];
@@ -152,30 +155,126 @@ function addMessage(text, type) {
       if (token.startsWith("**")) {
         const strong = document.createElement("strong");
         strong.textContent = token.slice(2, -2);
-        paragraph.appendChild(strong);
-      } else if (token.startsWith("*")) {
-        const italic = document.createElement("em");
-        italic.textContent = token.slice(1, -1);
-        paragraph.appendChild(italic);
-      } else {
+        element.appendChild(strong);
+
+      } else if (token.startsWith("`")) {
         const code = document.createElement("code");
         code.textContent = token.slice(1, -1);
-        paragraph.appendChild(code);
+        code.style.background = "#101522";
+        code.style.padding = "2px 5px";
+        code.style.borderRadius = "4px";
+        element.appendChild(code);
+
+      } else {
+        const italic = document.createElement("em");
+        italic.textContent = token.slice(1, -1);
+        element.appendChild(italic);
       }
 
       lastIndex = regex.lastIndex;
     }
 
-    paragraph.appendChild(
-      document.createTextNode(line.slice(lastIndex))
+    element.appendChild(
+      document.createTextNode(text.slice(lastIndex))
     );
+  }
 
+  function addCodeBlock() {
+    const pre = document.createElement("pre");
+    const code = document.createElement("code");
+
+    code.textContent = codeLines.join("\n");
+
+    pre.style.background = "#101522";
+    pre.style.color = "#d4af37";
+    pre.style.padding = "12px";
+    pre.style.borderRadius = "8px";
+    pre.style.overflowX = "auto";
+    pre.style.whiteSpace = "pre";
+
+    pre.appendChild(code);
+    item.appendChild(pre);
+    codeLines = [];
+  }
+
+  lines.forEach(line => {
+
+    if (line.trim().startsWith("```")) {
+      if (inCodeBlock) {
+        addCodeBlock();
+        inCodeBlock = false;
+      } else {
+        closeList();
+        inCodeBlock = true;
+      }
+      return;
+    }
+
+    if (inCodeBlock) {
+      codeLines.push(line);
+      return;
+    }
+
+    if (!line.trim()) {
+      closeList();
+      return;
+    }
+
+    const heading = line.match(/^(#{1,3})\s+(.+)$/);
+
+    if (heading) {
+      closeList();
+
+      const level = heading[1].length;
+      const title = document.createElement("h" + level);
+
+      title.style.color = "#d4af37";
+      title.style.margin = "12px 0 7px";
+
+      addInlineText(title, heading[2]);
+      item.appendChild(title);
+      return;
+    }
+
+    const bullet = line.match(/^\s*[-*]\s+(.+)$/);
+    const numbered = line.match(/^\s*\d+[.)]\s+(.+)$/);
+
+    if (bullet || numbered) {
+      const isNumbered = !!numbered;
+      const listType = isNumbered ? "ol" : "ul";
+
+      if (!currentList || currentList.tagName.toLowerCase() !== listType) {
+        closeList();
+        currentList = document.createElement(listType);
+        currentList.style.paddingLeft = "22px";
+        item.appendChild(currentList);
+      }
+
+      const li = document.createElement("li");
+      li.style.margin = "5px 0";
+
+      addInlineText(li, (bullet || numbered)[1]);
+      currentList.appendChild(li);
+      return;
+    }
+
+    closeList();
+
+    const paragraph = document.createElement("p");
+    paragraph.style.margin = "7px 0";
+
+    addInlineText(paragraph, line);
     item.appendChild(paragraph);
   });
+
+  if (inCodeBlock) {
+    addCodeBlock();
+  }
 
   chat.appendChild(item);
   chat.scrollTop = chat.scrollHeight;
 }
+
 
 
 
