@@ -179,23 +179,48 @@ function addMessage(text, type) {
     );
   }
 
-  function addCodeBlock() {
-    const pre = document.createElement("pre");
-    const code = document.createElement("code");
+  
+function addCodeBlock() {
+  const wrapper = document.createElement("div");
+  wrapper.style.margin = "12px 0";
 
-    code.textContent = codeLines.join("\n");
+  const copyButton = document.createElement("button");
+  copyButton.textContent = "📋 Copy code";
+  copyButton.style.padding = "7px 12px";
+  copyButton.style.marginBottom = "6px";
+  copyButton.style.fontSize = "12px";
 
-    pre.style.background = "#101522";
-    pre.style.color = "#d4af37";
-    pre.style.padding = "12px";
-    pre.style.borderRadius = "8px";
-    pre.style.overflowX = "auto";
-    pre.style.whiteSpace = "pre";
+  const pre = document.createElement("pre");
+  const code = document.createElement("code");
 
-    pre.appendChild(code);
-    item.appendChild(pre);
-    codeLines = [];
-  }
+  const codeText = codeLines.join("\n");
+  code.textContent = codeText;
+
+  pre.style.background = "#101522";
+  pre.style.color = "#d4af37";
+  pre.style.padding = "12px";
+  pre.style.borderRadius = "8px";
+  pre.style.overflowX = "auto";
+  pre.style.whiteSpace = "pre";
+
+  pre.appendChild(code);
+
+  copyButton.addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText(codeText);
+      copyButton.textContent = "✓ Copied!";
+    } catch (error) {
+      copyButton.textContent = "Copy failed";
+    }
+  });
+
+  wrapper.appendChild(copyButton);
+  wrapper.appendChild(pre);
+  item.appendChild(wrapper);
+
+  codeLines = [];
+}
+
 
   lines.forEach(line => {
 
