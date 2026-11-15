@@ -295,7 +295,18 @@ function addCodeBlock() {
   if (inCodeBlock) {
     addCodeBlock();
   }
+if (type === "ai") {
+  const speakerButton = document.createElement("button");
+  speakerButton.textContent = "🔊 Listen";
+  speakerButton.style.marginTop = "8px";
+  speakerButton.style.padding = "7px 12px";
 
+  speakerButton.addEventListener("click", function() {
+    speakAnswer(String(text));
+  });
+
+  item.appendChild(speakerButton);
+}
   chat.appendChild(item);
   chat.scrollTop = chat.scrollHeight;
 }
@@ -367,6 +378,7 @@ function speakAnswer(text) {
   speechSynthesis.speak(utterance);
 }
 
+
 async function sendMessage() {
   const userText = message.value.trim();
   if (!userText) return;
@@ -406,8 +418,7 @@ async function sendMessage() {
 
     addMessage(reply, "ai");
 
-    // Automatically speak every AI answer.
-    speakAnswer(reply);
+    statusText.textContent = "ABEB AW AI is connected.";
 
   } catch (error) {
     console.error("AI Error:", error);
@@ -421,12 +432,6 @@ async function sendMessage() {
   }
 }
 
-message.addEventListener("keydown", function(event) {
-  if (event.key === "Enter" && !event.shiftKey) {
-    event.preventDefault();
-    sendMessage();
-  }
-  });
 </script>
 </body>
 </html>
