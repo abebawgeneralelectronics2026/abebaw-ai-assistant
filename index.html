@@ -124,6 +124,7 @@ const sendButton = document.getElementById("send");
 // API connection will be added after the interface is tested.
 
 
+
 function addMessage(text, type) {
   const item = document.createElement("div");
   item.className = "message " + type;
@@ -134,26 +135,33 @@ function addMessage(text, type) {
     const paragraph = document.createElement("p");
     paragraph.style.margin = "5px 0";
 
-    const safeLine = document.createTextNode(line);
-    paragraph.appendChild(safeLine);
+    const regex = /(\*\*.*?\*\*|\*[^*]+\*)/g;
+    let lastIndex = 0;
+    let match;
 
-    // Format bold Markdown
-    const boldRegex = /\*\*(.*?)\*\*/g;
-    const formatted = line.replace(boldRegex, "§BOLD§$1§END§");
+    while ((match = regex.exec(line)) !== null) {
+      paragraph.appendChild(
+        document.createTextNode(line.slice(lastIndex, match.index))
+      );
 
-    paragraph.textContent = "";
+      const token = match[0];
 
-    const parts = formatted.split(/(§BOLD§.*?§END§)/g);
-
-    parts.forEach(part => {
-      if (part.startsWith("§BOLD§") && part.endsWith("§END§")) {
+      if (token.startsWith("**")) {
         const strong = document.createElement("strong");
-        strong.textContent = part.slice(6, -5);
+        strong.textContent = token.slice(2, -2);
         paragraph.appendChild(strong);
       } else {
-        paragraph.appendChild(document.createTextNode(part));
+        const italic = document.createElement("em");
+        italic.textContent = token.slice(1, -1);
+        paragraph.appendChild(italic);
       }
-    });
+
+      lastIndex = regex.lastIndex;
+    }
+
+    paragraph.appendChild(
+      document.createTextNode(line.slice(lastIndex))
+    );
 
     item.appendChild(paragraph);
   });
@@ -161,6 +169,7 @@ function addMessage(text, type) {
   chat.appendChild(item);
   chat.scrollTop = chat.scrollHeight;
 }
+
 
 
 
