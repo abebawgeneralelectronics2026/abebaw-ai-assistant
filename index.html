@@ -127,6 +127,7 @@ const sendButton = document.getElementById("send");
 
 
 
+
 function addMessage(text, type) {
   const item = document.createElement("div");
   item.className = "message " + type;
@@ -156,7 +157,6 @@ function addMessage(text, type) {
         const strong = document.createElement("strong");
         strong.textContent = token.slice(2, -2);
         element.appendChild(strong);
-
       } else if (token.startsWith("`")) {
         const code = document.createElement("code");
         code.textContent = token.slice(1, -1);
@@ -164,7 +164,6 @@ function addMessage(text, type) {
         code.style.padding = "2px 5px";
         code.style.borderRadius = "4px";
         element.appendChild(code);
-
       } else {
         const italic = document.createElement("em");
         italic.textContent = token.slice(1, -1);
@@ -179,51 +178,48 @@ function addMessage(text, type) {
     );
   }
 
-  
-function addCodeBlock() {
-  const wrapper = document.createElement("div");
-  wrapper.style.margin = "12px 0";
+  function addCodeBlock() {
+    const wrapper = document.createElement("div");
+    wrapper.style.margin = "12px 0";
 
-  const copyButton = document.createElement("button");
-  copyButton.textContent = "📋 Copy code";
-  copyButton.style.padding = "7px 12px";
-  copyButton.style.marginBottom = "6px";
-  copyButton.style.fontSize = "12px";
+    const copyButton = document.createElement("button");
+    copyButton.textContent = "📋 Copy code";
+    copyButton.style.padding = "7px 12px";
+    copyButton.style.marginBottom = "6px";
+    copyButton.style.fontSize = "12px";
 
-  const pre = document.createElement("pre");
-  const code = document.createElement("code");
+    const pre = document.createElement("pre");
+    const code = document.createElement("code");
 
-  const codeText = codeLines.join("\n");
-  code.textContent = codeText;
+    const codeText = codeLines.join("\n");
+    code.textContent = codeText;
 
-  pre.style.background = "#101522";
-  pre.style.color = "#d4af37";
-  pre.style.padding = "12px";
-  pre.style.borderRadius = "8px";
-  pre.style.overflowX = "auto";
-  pre.style.whiteSpace = "pre";
+    pre.style.background = "#101522";
+    pre.style.color = "#d4af37";
+    pre.style.padding = "12px";
+    pre.style.borderRadius = "8px";
+    pre.style.overflowX = "auto";
+    pre.style.whiteSpace = "pre";
 
-  pre.appendChild(code);
+    pre.appendChild(code);
 
-  copyButton.addEventListener("click", async () => {
-    try {
-      await navigator.clipboard.writeText(codeText);
-      copyButton.textContent = "✓ Copied!";
-    } catch (error) {
-      copyButton.textContent = "Copy failed";
-    }
-  });
+    copyButton.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(codeText);
+        copyButton.textContent = "✓ Copied!";
+      } catch (error) {
+        copyButton.textContent = "Copy failed";
+      }
+    });
 
-  wrapper.appendChild(copyButton);
-  wrapper.appendChild(pre);
-  item.appendChild(wrapper);
+    wrapper.appendChild(copyButton);
+    wrapper.appendChild(pre);
+    item.appendChild(wrapper);
 
-  codeLines = [];
-}
-
+    codeLines = [];
+  }
 
   lines.forEach(line => {
-
     if (line.trim().startsWith("```")) {
       if (inCodeBlock) {
         addCodeBlock();
@@ -296,49 +292,36 @@ function addCodeBlock() {
     addCodeBlock();
   }
 
-if (type === "ai") {
-  const voiceControls = document.createElement("div");
-  voiceControls.style.marginTop = "8px";
+  if (type === "ai") {
+    const voiceControls = document.createElement("div");
+    voiceControls.style.marginTop = "8px";
 
-  const speakerButton = document.createElement("button");
-  speakerButton.textContent = "🔊 Listen";
-  speakerButton.style.padding = "8px 12px";
-  speakerButton.style.marginRight = "8px";
+    const speakerButton = document.createElement("button");
+    speakerButton.textContent = "🔊 Listen";
+    speakerButton.style.padding = "8px 12px";
+    speakerButton.style.marginRight = "8px";
 
-  speakerButton.addEventListener("click", function() {
-    speakAnswer(String(text));
-  });
+    speakerButton.addEventListener("click", function() {
+      speakAnswer(String(text));
+    });
 
-  const stopButton = document.createElement("button");
-  stopButton.textContent = "⏹ Stop Speaking";
-  stopButton.style.padding = "8px 12px";
+    const stopButton = document.createElement("button");
+    stopButton.textContent = "⏹ Stop Speaking";
+    stopButton.style.padding = "8px 12px";
 
-  stopButton.addEventListener("click", function() {
-    stopSpeaking();
-    statusText.textContent = "ABEB AW AI is connected.";
-  });
+    stopButton.addEventListener("click", function() {
+      stopSpeaking();
+      statusText.textContent = "ABEB AW AI is connected.";
+    });
 
-  voiceControls.appendChild(speakerButton);
-  voiceControls.appendChild(stopButton);
-  item.appendChild(voiceControls);
-}
-  item.appendChild(voiceControls);
-}
+    voiceControls.appendChild(speakerButton);
+    voiceControls.appendChild(stopButton);
+    item.appendChild(voiceControls);
+  }
 
   chat.appendChild(item);
   chat.scrollTop = chat.scrollHeight;
 }
-
-  chat.appendChild(item);
-  chat.scrollTop = chat.scrollHeight;
-}
-
-
-
-
-
-
-
 function stopSpeaking() {
   if ("speechSynthesis" in window) {
     speechSynthesis.cancel();
