@@ -295,8 +295,34 @@ function addCodeBlock() {
   if (inCodeBlock) {
     addCodeBlock();
   }
+
 if (type === "ai") {
+  const voiceControls = document.createElement("div");
+  voiceControls.style.marginTop = "8px";
+
   const speakerButton = document.createElement("button");
+  speakerButton.textContent = "🔊 Listen";
+  speakerButton.style.padding = "8px 12px";
+  speakerButton.style.marginRight = "8px";
+
+  speakerButton.addEventListener("click", function() {
+    speakAnswer(String(text));
+  });
+
+  const stopButton = document.createElement("button");
+  stopButton.textContent = "⏹ Stop Speaking";
+  stopButton.style.padding = "8px 12px";
+
+  stopButton.addEventListener("click", function() {
+    stopSpeaking();
+    statusText.textContent = "ABEB AW AI is connected.";
+  });
+
+  voiceControls.appendChild(speakerButton);
+  voiceControls.appendChild(stopButton);
+  item.appendChild(voiceControls);
+}
+
   speakerButton.textContent = "🔊 Listen";
   speakerButton.style.marginTop = "8px";
   speakerButton.style.padding = "7px 12px";
