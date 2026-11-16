@@ -131,62 +131,99 @@ const sendButton = document.getElementById("send");
 
 // API connection will be added after the interface is tested.
 
-const SpeechRecognition =
-  window.SpeechRecognition || window.webkitSpeechRecognition;
 
-let recognition = null;
+let mediaRecorder = null;
+let audioChunks = [];
+let microphoneStream = null;
 let isListening = false;
 
-function toggleMicrophone() {
-  if (!SpeechRecognition) {
-    statusText.textContent =
-      "Voice recognition is not supported. Try Google Chrome.";
-    return;
-  }
+async function toggleMicrophone() {
+  const micButton = document.getElementById("mic");
 
   if (isListening) {
-    recognition.stop();
+    mediaRecorder.stop();
     return;
   }
 
-  recognition = new SpeechRecognition();
+  try {
+    microphoneStream =
+      await navigator.mediaDevices.getUserMedia({ audio: true });
 
-  recognition.lang = "am-ET";
-  recognition.continuous = false;
-  recognition.interimResults = true;
+    audioChunks = [];
 
-  recognition.onstart = function() {
-    isListening = true;
-    document.getElementById("mic").textContent = "⏹ STOP LISTENING";
-    statusText.textContent = "ABEB AW AI is listening...";
-  };
+    const mimeType = MediaRecorder.isTypeSupported("audio/webm")
+      ? "audio/webm"
+      : "";
 
-  recognition.onresult = function(event) {
-    let transcript = "";
+    mediaRecorder = new MediaRecorder(
+      microphoneStream,
+      mimeType ? { mimeType } : {}
+    );
 
-    for (let i = 0; i < event.results.length; i++) {
-      transcript += event.results[i][0].transcript;
-    }
+    mediaRecorder.ondataavailable = function(event) {
+      if (event.data.size > 0) {
+        audioChunks.push(event.data);
+      }
+    };
 
-    message.value = transcript;
-  };
+    mediaRecorder.onstart = function() {
+      isListening = true;
+      micButton.textContent = "⏹ STOP LISTENING";
+      statusText.textContent = "ABEB AW AI is listening...";
+    };
 
-  recognition.onerror = function(event) {
+    mediaRecorder.onstop = async function() {
+      isListening = false;
+      micButton.textContent = "🎤 SPEAK";
+
+      microphoneStream.getTracks().forEach(track => track.stop());
+
+      statusText.textContent = "Converting your voice...";
+
+      try {
+        const audioBlob = new Blob(audioChunks, {
+          type: mediaRecorder.mimeType
+        });
+
+        const formData = new FormData();
+        formData.append("audio", audioBlob, "recording.webm");
+
+        const response = await fetch(
+          "https://abeb-aw-ai-brain.jacksonabebe98.workers.dev/transcribe",
+          {
+            method: "POST",
+            body: formData
+          }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || "Transcription failed.");
+        }
+
+        if (!data.transcript) {
+          throw new Error("No speech was recognized.");
+        }
+
+        message.value = data.transcript;
+        statusText.textContent =
+          "Voice recognized. Check the text and press SEND MESSAGE.";
+
+      } catch (error) {
+        console.error("Microphone error:", error);
+        statusText.textContent = error.message;
+      }
+    };
+
+    mediaRecorder.start();
+
+  } catch (error) {
     statusText.textContent =
-      "Microphone error: " + event.error;
-  };
-
-  recognition.onend = function() {
-    isListening = false;
-    document.getElementById("mic").textContent = "🎤 SPEAK";
-
-    if (statusText.textContent === "ABEB AW AI is listening...") {
-      statusText.textContent = "Voice captured. Ready to send.";
-    }
-  };
-
-  recognition.start();
+      "Microphone problem: " + error.message;
+  }
 }
+ 
 
 
 
