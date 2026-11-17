@@ -467,11 +467,11 @@ function speakAnswer(text) {
     voice => voice.lang.toLowerCase().startsWith(language + "-")
   );
 
-  if (!matchingVoice && language === "am") {
-    statusText.textContent =
-      "No Amharic voice found. Please install an Amharic TTS voice.";
-    return;
-  }
+  
+if (!matchingVoice && language === "am") {
+  statusText.textContent =
+    "Amharic voice unavailable. Trying fallback voice...";
+}
 
   utterance.lang = matchingVoice
     ? matchingVoice.lang
