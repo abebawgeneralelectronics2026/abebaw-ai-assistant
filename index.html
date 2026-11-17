@@ -430,6 +430,7 @@ function stopSpeaking() {
   }
 }
 
+
 function speakAnswer(text) {
   if (!("speechSynthesis" in window)) {
     statusText.textContent = "Voice playback is not supported.";
@@ -441,33 +442,48 @@ function speakAnswer(text) {
   const utterance = new SpeechSynthesisUtterance(text);
   const voices = speechSynthesis.getVoices();
 
-  // Detect the language from the AI's response.
   function detectLanguage(text) {
-    if (/[\u1200-\u137F]/.test(text)) return "am-ET";
+    if (/[\u1200-\u137F]/.test(text)) return "am";
     if (/[\u0600-\u06FF]/.test(text)) return "ar";
     if (/[\u0400-\u04FF]/.test(text)) return "ru";
     if (/[\u4E00-\u9FFF]/.test(text)) return "zh";
     if (/[\u3040-\u30FF]/.test(text)) return "ja";
     if (/[\uAC00-\uD7AF]/.test(text)) return "ko";
+    if (/[\u0C00-\u0C7F]/.test(text)) return "te";
     if (/\b(hola|gracias|español)\b/i.test(text)) return "es";
     if (/\b(bonjour|merci|français)\b/i.test(text)) return "fr";
     if (/\b(hallo|danke|deutsch)\b/i.test(text)) return "de";
+    if (/\b(hello|thank you|good morning)\b/i.test(text)) return "en";
 
     return "en";
   }
 
   const language = detectLanguage(text);
-  utterance.lang = language;
 
   const matchingVoice = voices.find(
-    voice => voice.lang.toLowerCase() === language.toLowerCase()
+    voice => voice.lang.toLowerCase() ===
+      (language === "am" ? "am-et" : language)
   ) || voices.find(
-    voice => voice.lang.toLowerCase().startsWith(language.split("-")[0])
+    voice => voice.lang.toLowerCase().startsWith(language + "-")
   );
+
+  if (!matchingVoice && language === "am") {
+    statusText.textContent =
+      "No Amharic voice found. Please install an Amharic TTS voice.";
+    return;
+  }
+
+  utterance.lang = matchingVoice
+    ? matchingVoice.lang
+    : language;
 
   if (matchingVoice) {
     utterance.voice = matchingVoice;
   }
+
+  utterance.rate = 0.85;
+  utterance.pitch = 1;
+  utterance.volume = 1;
 
   utterance.onstart = function() {
     statusText.textContent = "ABEB AW AI is speaking...";
