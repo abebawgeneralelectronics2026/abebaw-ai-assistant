@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ABEB AW AI Phone Control</string>
+    <string name="accessibility_service_description">Allows ABEB AW AI to interact with your phone only after you explicitly enable the service and authorize actions.</string>
+</resources>
