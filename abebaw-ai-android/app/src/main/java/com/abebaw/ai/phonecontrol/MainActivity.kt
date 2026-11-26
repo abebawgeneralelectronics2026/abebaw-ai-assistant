@@ -1,18 +1,12 @@
 package com.abebaw.ai.phonecontrol
 
 import android.app.Activity
-import android.content.Intent
 import android.os.Bundle
-import android.provider.Settings
 import android.view.Gravity
-import android.view.ViewGroup
-import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
 
 class MainActivity : Activity() {
-
-    private lateinit var statusText: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,42 +30,20 @@ class MainActivity : Activity() {
             textSize = 18f
             setTextColor(0xFFFFFFFF.toInt())
             gravity = Gravity.CENTER
+            setPadding(0, 12, 0, 24)
         }
 
-        statusText = TextView(this).apply {
+        val status = TextView(this).apply {
+            text = "Safe preview build\n\nPhone-control actions are not enabled in this version.\nNo Accessibility Service is included."
             textSize = 16f
             setTextColor(0xFFFFFFFF.toInt())
             gravity = Gravity.CENTER
-            setPadding(0, 35, 0, 35)
-        }
-
-        val enableButton = Button(this).apply {
-            text = "OPEN ACCESSIBILITY SETTINGS"
-            setOnClickListener {
-                startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
-            }
-        }
-
-        val stopButton = Button(this).apply {
-            text = "STOP / PAUSE CONTROL"
-            setOnClickListener {
-                statusText.text =
-                    "Control paused. You are in charge of your phone."
-            }
+            setLineSpacing(6f, 1f)
         }
 
         layout.addView(title)
         layout.addView(subtitle)
-        layout.addView(statusText)
-        layout.addView(enableButton)
-        layout.addView(stopButton)
-
+        layout.addView(status)
         setContentView(layout)
-    }
-
-    override fun onResume() {
-        super.onResume()
-        statusText.text =
-            "Phone control is not active yet.\nYour permission is required."
     }
 }
