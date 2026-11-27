@@ -1,5 +1,3 @@
-
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">ABEB AW AI Phone Control</string>
     <string name="accessibility_service_description">ABEB AW AI accessibility foundation. This prototype does not perform phone actions. Future actions will require your explicit approval.</string>
